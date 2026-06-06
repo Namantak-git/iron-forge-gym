@@ -1,0 +1,99 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+@import "tailwindcss";
+
+:root {
+  --background: #080808;
+  --foreground: #f5f5f5;
+  --card: #111111;
+  --card-foreground: #f5f5f5;
+  --popover: #111111;
+  --popover-foreground: #f5f5f5;
+  --primary: #e61c24; /* Crimson Red */
+  --primary-foreground: #ffffff;
+  --secondary: #1f1f1f;
+  --secondary-foreground: #f5f5f5;
+  --muted: #262626;
+  --muted-foreground: #a3a3a3;
+  --accent: #2c0e10;
+  --accent-foreground: #ff8a8d;
+  --destructive: #7f1d1d;
+  --destructive-foreground: #f5f5f5;
+  --border: #262626;
+  --input: #262626;
+  --ring: #e61c24;
+  --radius: 0.75rem;
+  
+  --font-outfit: 'Outfit', sans-serif;
+}
+
+/* Base resets & standard theme mappings for Tailwind */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --font-sans: var(--font-outfit);
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-outfit);
+  overflow-x: hidden;
+}
+
+/* Glassmorphism custom classes */
+.glass-card {
+  background: rgba(20, 20, 20, 0.6);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.glass-card-hover:hover {
+  background: rgba(30, 20, 20, 0.85);
+  border: 1px solid rgba(230, 28, 36, 0.25);
+  box-shadow: 0 8px 30px rgba(230, 28, 36, 0.1);
+  transform: translateY(-2px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Red Neon glow text effect */
+.text-glow-red {
+  text-shadow: 0 0 10px rgba(230, 28, 36, 0.6), 0 0 20px rgba(230, 28, 36, 0.2);
+}
+
+/* Box Glow Red */
+.glow-border-red {
+  box-shadow: 0 0 15px rgba(230, 28, 36, 0.15);
+  border-color: rgba(230, 28, 36, 0.4);
+}
+
+/* Custom premium scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #080808;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #262626;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #e61c24;
+}

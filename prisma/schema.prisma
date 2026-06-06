@@ -1,0 +1,186 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+generator client_server {
+  provider = "prisma-client-js"
+  output   = "../server/node_modules/.prisma/client"
+}
+
+enum Role {
+  ADMIN
+  TRAINER
+  MEMBER
+}
+
+enum MembershipStatus {
+  ACTIVE
+  EXPIRED
+  PENDING
+}
+
+enum PaymentStatus {
+  SUCCESS
+  FAILED
+  PENDING
+}
+
+model User {
+  id            String          @id @default(uuid())
+  name          String
+  email         String          @unique
+  password      String
+  role          Role            @default(MEMBER)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  
+  memberProfile MemberProfile?
+  trainerProfile TrainerProfile?
+  payments      Payment[]
+  attendance    Attendance[]
+  notifications Notification[]
+  blogPosts     BlogPost[]
+}
+
+model MemberProfile {
+  id              String           @id @default(uuid())
+  userId          String           @unique
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  dob             DateTime?
+  gender          String?
+  phone           String?
+  emergencyPhone  String?
+  address         String?
+  height          Float?           // in cm
+  weight          Float?           // in kg
+  bmi             Float?
+  targetWeight    Float?           // in kg
+  qrCodeUrl       String?
+  status          MembershipStatus @default(PENDING)
+  
+  membershipId    String?
+  membership      Membership?      @relation(fields: [membershipId], references: [id])
+  
+  trainerId       String?
+  trainer         TrainerProfile?  @relation(fields: [trainerId], references: [id])
+  
+  workoutPlans    WorkoutPlan[]
+  dietPlans       DietPlan[]
+  progressLogs    ProgressLog[]
+}
+
+model TrainerProfile {
+  id             String          @id @default(uuid())
+  userId         String          @unique
+  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bio            String?
+  specializations String[]       // Specialization tags
+  qualifications String[]
+  rating         Float           @default(5.0)
+  status         String          @default("ACTIVE") // ACTIVE, INACTIVE
+  
+  clients        MemberProfile[]
+  workoutPlans   WorkoutPlan[]
+  dietPlans      DietPlan[]
+}
+
+model Membership {
+  id             String          @id @default(uuid())
+  name           String          @unique // e.g. "Monthly Gold", "Yearly Platinum"
+  price          Float
+  durationMonths Int
+  description    String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  
+  members        MemberProfile[]
+  payments       Payment[]
+}
+
+model Payment {
+  id               String        @id @default(uuid())
+  userId           String
+  user             User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  membershipId     String
+  membership       Membership    @relation(fields: [membershipId], references: [id])
+  amount           Float
+  status           PaymentStatus @default(PENDING)
+  razorpayOrderId  String        @unique
+  razorpayPaymentId String?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+}
+
+model Attendance {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date      DateTime @default(now())
+  checkIn   DateTime @default(now())
+  checkOut  DateTime?
+}
+
+model WorkoutPlan {
+  id            String        @id @default(uuid())
+  title         String
+  description   String?
+  trainerId     String
+  trainer       TrainerProfile @relation(fields: [trainerId], references: [id])
+  memberId      String
+  member        MemberProfile  @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  routines      Json          // Array of day routines (exercises, sets, reps)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model DietPlan {
+  id            String        @id @default(uuid())
+  title         String
+  description   String?
+  trainerId     String
+  trainer       TrainerProfile @relation(fields: [trainerId], references: [id])
+  memberId      String
+  member        MemberProfile  @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  meals         Json          // Breakfast, Lunch, Snack, Dinner, etc.
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model ProgressLog {
+  id         String        @id @default(uuid())
+  memberId   String
+  member     MemberProfile @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  weight     Float
+  bodyFat    Float?        // percentage
+  muscleMass Float?        // in kg
+  photoUrl   String?       // Cloudinary image path
+  loggedAt   DateTime      @default(now())
+}
+
+model BlogPost {
+  id            String   @id @default(uuid())
+  title         String
+  slug          String   @unique
+  content       String   @db.Text
+  coverImageUrl String?
+  authorId      String
+  author        User     @relation(fields: [authorId], references: [id])
+  tags          String[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
