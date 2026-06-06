@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Card from '../ui/Card';
 import Button from '../ui/Button';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function BmiCalculator() {
   const [height, setHeight] = useState<string>('');
@@ -84,18 +85,26 @@ export default function BmiCalculator() {
         </Button>
       </form>
 
-      {bmi !== null && (
-        <div className="mt-8 p-5 bg-neutral-900/80 border border-white/5 rounded-lg text-center animate-fade-in">
-          <p className="text-neutral-400 text-xs uppercase tracking-wider font-semibold">Your BMI Score</p>
-          <div className="text-4xl font-black text-primary text-glow-red mt-1">{bmi}</div>
-          <div className="mt-2 text-lg font-bold text-white uppercase tracking-wider">
-            Category: <span className="text-primary">{category}</span>
-          </div>
-          <p className="text-sm text-neutral-300 leading-relaxed mt-3 border-t border-white/5 pt-3">
-            {recommendation}
-          </p>
-        </div>
-      )}
+      <AnimatePresence>
+        {bmi !== null && (
+          <motion.div
+            initial={{ opacity: 0, height: 0, y: 15 }}
+            animate={{ opacity: 1, height: 'auto', y: 0 }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.4, ease: 'easeOut' }}
+            className="mt-8 p-5 bg-neutral-900/80 border border-white/5 rounded-lg text-center overflow-hidden"
+          >
+            <p className="text-neutral-400 text-xs uppercase tracking-wider font-semibold">Your BMI Score</p>
+            <div className="text-4xl font-black text-primary text-glow-red mt-1">{bmi}</div>
+            <div className="mt-2 text-lg font-bold text-white uppercase tracking-wider">
+              Category: <span className="text-primary">{category}</span>
+            </div>
+            <p className="text-sm text-neutral-300 leading-relaxed mt-3 border-t border-white/5 pt-3">
+              {recommendation}
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </Card>
   );
 }
