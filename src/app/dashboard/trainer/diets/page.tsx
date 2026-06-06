@@ -9,14 +9,29 @@ export default function TrainerDiets() {
   const [selectedClient, setSelectedClient] = useState('John Doe');
   const [dietTitle, setDietTitle] = useState('Clean Bulking Plan');
   const [calories, setCalories] = useState('2800 kcal');
+  const [dietType, setDietType] = useState<'Veg' | 'Non-Veg'>('Non-Veg');
   const [success, setSuccess] = useState(false);
 
-  const [meals, setMeals] = useState([
+  const nonVegMeals = [
     { meal: 'Breakfast', food: '4 Egg whites, 2 Whole eggs, 75g Rolled oats, 1 Banana' },
     { meal: 'Lunch', food: '200g Grilled Chicken breast, 100g Basmati Rice, Broccoli, Olive oil drizzle' },
     { meal: 'Pre-Workout Snack', food: '1 Scoop Whey isolate, 1 Apple, 25g Almonds' },
     { meal: 'Dinner', food: '180g Baked Salmon or Paneer, Sweet potato, Mixed green salad' },
-  ]);
+  ];
+
+  const vegMeals = [
+    { meal: 'Breakfast', food: '100g Paneer bhurji, 2 Slices Whole wheat bread, 75g Rolled oats, 1 Banana' },
+    { meal: 'Lunch', food: '200g Grilled Tofu or Soya chunks, 100g Basmati Rice, Broccoli, Olive oil drizzle' },
+    { meal: 'Pre-Workout Snack', food: '1 Scoop Plant protein or Soy milk, 1 Apple, 25g Almonds' },
+    { meal: 'Dinner', food: '180g Grilled Paneer, Roasted sweet potato, Chickpea salad, Mixed green salad' },
+  ];
+
+  const [meals, setMeals] = useState(nonVegMeals);
+
+  const handleDietTypeChange = (type: 'Veg' | 'Non-Veg') => {
+    setDietType(type);
+    setMeals(type === 'Veg' ? vegMeals : nonVegMeals);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,11 +54,11 @@ export default function TrainerDiets() {
           <form onSubmit={handleSubmit} className="space-y-6">
             {success && (
               <div className="bg-emerald-950/50 border border-emerald-900 text-emerald-400 text-sm px-4 py-2.5 rounded-lg font-bold">
-                Diet Chart assigned to {selectedClient} successfully!
+                Diet Chart ({dietType}) assigned to {selectedClient} successfully!
               </div>
             )}
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <div>
                 <label className="block text-sm font-medium text-neutral-300 mb-1.5">Select Client</label>
                 <select
@@ -75,12 +90,23 @@ export default function TrainerDiets() {
                   className="w-full bg-neutral-900 border border-neutral-800 focus:border-primary focus:ring-1 focus:ring-primary rounded-lg px-4 py-2.5 text-white focus:outline-none transition-all"
                 />
               </div>
+              <div>
+                <label className="block text-sm font-medium text-neutral-300 mb-1.5">Diet Preference</label>
+                <select
+                  value={dietType}
+                  onChange={(e) => handleDietTypeChange(e.target.value as 'Veg' | 'Non-Veg')}
+                  className="w-full bg-neutral-900 border border-neutral-800 focus:border-primary focus:ring-1 focus:ring-primary rounded-lg px-4 py-2.5 text-white focus:outline-none transition-all"
+                >
+                  <option value="Non-Veg">Non-Veg</option>
+                  <option value="Veg">Veg (Vegetarian)</option>
+                </select>
+              </div>
             </div>
 
             <hr className="border-white/5" />
 
             <div className="space-y-4">
-              <h3 className="text-sm font-bold uppercase tracking-wider text-primary">Meal Breakdown</h3>
+              <h3 className="text-sm font-bold uppercase tracking-wider text-primary">Meal Breakdown ({dietType})</h3>
               {meals.map((item, index) => (
                 <div key={index} className="space-y-2">
                   <div className="font-semibold text-white text-sm">{item.meal}</div>
