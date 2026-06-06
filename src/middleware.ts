@@ -1,6 +1,25 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { verifyToken } from './lib/auth';
+
+interface TokenPayload {
+  userId: string;
+  email: string;
+  role: 'ADMIN' | 'TRAINER' | 'MEMBER';
+}
+
+function decodeJwt(token: string): TokenPayload | null {
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+    
+    // Decode base64url payload natively (compatible with Next.js Edge Runtime)
+    const payloadBase64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+    const rawPayload = atob(payloadBase64);
+    return JSON.parse(rawPayload) as TokenPayload;
+  } catch (error) {
+    return null;
+  }
+}
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -21,7 +40,7 @@ export function middleware(request: NextRequest) {
       return NextResponse.redirect(loginUrl);
     }
 
-    const payload = verifyToken(token);
+    const payload = decodeJwt(token);
     if (!payload) {
       // Token invalid or expired
       const response = NextResponse.redirect(new URL('/login', request.url));
@@ -44,7 +63,7 @@ export function middleware(request: NextRequest) {
   // Redirect authenticated user away from auth pages
   const isAuthPage = pathname === '/login' || pathname === '/register';
   if (isAuthPage && token) {
-    const payload = verifyToken(token);
+    const payload = decodeJwt(token);
     if (payload) {
       return redirectToOwnDashboard(payload.role, request);
     }
